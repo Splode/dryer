@@ -40,6 +40,10 @@ func main() {
 		patEnd := r[1][len(r[0])-1].(token)
 		fmt.Printf("file: %s, line: %v, column: %v\t", patBeg.Filename, patBeg.Line, patBeg.Column)
 		fmt.Printf("file: %s, line: %v, column: %v\n", patEnd.Filename, patEnd.Line, patEnd.Column)
+
+		clones := make([][]token, 0)
+		clones = append(clones, []token{srcBeg, srcEnd}, []token{patBeg, patEnd})
+		print(clones)
 	}
 }
 
