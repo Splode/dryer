@@ -1,0 +1,20 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  BUILD_DIR: build
+
+tasks:
+  build:
+    desc: Build the dryer binary.
+    deps: [build:dir]
+    cmds:
+      - go build -o ./{{ .BUILD_DIR }}/dryer{{ exeExt }} ./main.go
+
+  build:dir:
+    desc: Create the binary output directory.
+    cmds:
+      - mkdir {{ .BUILD_DIR }}
+    status:
+      - test -d {{ .BUILD_DIR }}
