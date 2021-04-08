@@ -1,10 +1,10 @@
-package main
+package dryer
 
 type Stringer interface {
 	String() string
 }
 
-func search(src, patterns []Stringer, min int) map[int][][]Stringer {
+func Search(src, patterns []Stringer, min int) map[int][][]Stringer {
 	i := indices(src, patterns, min)
 	matches := make(map[int][][]Stringer, len(i))
 
