@@ -13,9 +13,8 @@ var rootCmd = &cobra.Command{
 	Short: "Dryer helps",
 	Long:  `something`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
-		fmt.Println("root cmd")
-		dryer.Parse()
+		src, pat := args[0], args[1]
+		dryer.Parse(src, pat)
 	},
 }
 
