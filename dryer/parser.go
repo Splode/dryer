@@ -3,26 +3,33 @@ package dryer
 import (
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 func Parse() {
 	srcFilePath := "./src.js"
-	_, srcFileName := path.Split(srcFilePath)
-	src, err := os.Open("./src.js")
+	src, err := os.Open(srcFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	patFilePath := "./pat.js"
-	_, patFileName := path.Split(patFilePath)
-	pat, err := os.Open("./pat.js")
+	pat, err := os.Open(patFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	srcTokens := Tokenize(src, srcFileName)
-	patTokens := Tokenize(pat, patFileName)
+	srcPath, err := filepath.Abs(srcFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	srcTokens := Tokenize(src, srcPath)
+
+	patPath, err := filepath.Abs(patFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	patTokens := Tokenize(pat, patPath)
 
 	res := Search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), 10)
 
