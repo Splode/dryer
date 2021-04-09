@@ -23,8 +23,8 @@ func Parse(s, p string, min int) error {
 	keys := sortedKeys(res)
 	for _, k := range keys {
 		c := getTokenClones(res[k])
-		Print(c)
 		fmt.Println()
+		Print(c)
 	}
 
 	return nil
