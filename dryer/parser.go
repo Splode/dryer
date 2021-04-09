@@ -1,5 +1,10 @@
 package dryer
 
+import (
+	"fmt"
+	"sort"
+)
+
 func Parse(s, p string) error {
 	srcFile, err := open(s)
 	if err != nil {
@@ -13,11 +18,13 @@ func Parse(s, p string) error {
 	}
 	patTokens := Tokenize(patFile.src, patFile.absolutePath)
 
-	res := Search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), 10)
+	res := Search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), 25)
 
-	for _, r := range res {
-		c := getTokenClones(r)
+	keys := sortedKeys(res)
+	for _, k := range keys {
+		c := getTokenClones(res[k])
 		Print(c)
+		fmt.Println()
 	}
 
 	return nil
@@ -33,4 +40,17 @@ func getTokenClones(strs [][]Stringer) [][]Token {
 	clones := make([][]Token, 0)
 	clones = append(clones, []Token{srcBeg, srcEnd}, []Token{patBeg, patEnd})
 	return clones
+}
+
+func sortedKeys(m map[int][][]Stringer) []int {
+	keys := make([]int, len(m))
+	i := 0
+	for k := range m {
+		keys[i] = k
+		i++
+	}
+	sort.Slice(keys, func(a, b int) bool {
+		return keys[a] > keys[b]
+	})
+	return keys
 }

@@ -1,5 +1,7 @@
 package dryer
 
+import "sort"
+
 type Stringer interface {
 	String() string
 }
@@ -9,7 +11,9 @@ func Search(src, patterns []Stringer, min int) map[int][][]Stringer {
 	matches := make(map[int][][]Stringer, len(i))
 
 	var count int
-	for _, v := range i {
+	keys := sortedIntMap(i)
+	for _, k := range keys {
+		v := i[k]
 		var s []Stringer
 		if v[1][0]+1 >= len(src) {
 			s = src[v[0][0]:]
@@ -69,4 +73,17 @@ func indices(src, patterns []Stringer, min int) map[int][][]int {
 	}
 
 	return ind
+}
+
+func sortedIntMap(m map[int][][]int) []int {
+	keys := make([]int, len(m))
+	i := 0
+	for k := range m {
+		keys[i] = k
+		i++
+	}
+	sort.Slice(keys, func(a, b int) bool {
+		return keys[a] > keys[b]
+	})
+	return keys
 }
