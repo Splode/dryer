@@ -13,6 +13,7 @@ func Print(clones [][]Token) {
 	table.SetHeader([]string{"Filepath", "Start", "End"})
 	table.SetBorder(false)
 	table.SetAutoFormatHeaders(false)
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
 	table.AppendBulk(data)
 	table.Render()
 }

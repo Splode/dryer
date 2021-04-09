@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-func Parse(s, p string) error {
+func Parse(s, p string, min int) error {
 	srcFile, err := open(s)
 	if err != nil {
 		return err
@@ -18,7 +18,7 @@ func Parse(s, p string) error {
 	}
 	patTokens := Tokenize(patFile.src, patFile.absolutePath)
 
-	res := Search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), 25)
+	res := Search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), min)
 
 	keys := sortedKeys(res)
 	for _, k := range keys {
