@@ -3,18 +3,47 @@ package dryer
 import (
 	"fmt"
 	"sort"
+	"sync"
+
+	"github.com/splode/dryer/pkg/strings"
 )
 
-func Parse(s, p string, min int) error {
+func Compare(tokenMin int, paths ...string) {
+	pathMatrix := strings.UniqueMatrix(paths...)
+
+	var wg sync.WaitGroup
+	wg.Add(len(pathMatrix))
+	res := make([][][]string, 0)
+	for _, matrix := range pathMatrix {
+		m := matrix
+		go func(wg *sync.WaitGroup) {
+			clones, err := parse(m[0], m[1], tokenMin)
+			if err != nil {
+				fmt.Println(err)
+			}
+			res = append(res, clones)
+			wg.Done()
+		}(&wg)
+	}
+	wg.Wait()
+
+	for _, r := range res {
+		if len(r) > 1 {
+			Print(r)
+		}
+	}
+}
+
+func parse(s, p string, min int) ([][]string, error) {
 	srcFile, err := open(s)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	srcTokens := Tokenize(srcFile.src, srcFile.absolutePath)
 
 	patFile, err := open(p)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	patTokens := Tokenize(patFile.src, patFile.absolutePath)
 
@@ -28,11 +57,7 @@ func Parse(s, p string, min int) error {
 		cloneData = append(cloneData, d...)
 	}
 
-	if len(cloneData) > 1 {
-		Print(cloneData)
-	}
-
-	return nil
+	return cloneData, nil
 }
 
 func cloneTableData(clones [][]Token) [][]string {
