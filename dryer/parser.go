@@ -8,8 +8,8 @@ import (
 	"github.com/splode/dryer/pkg/strings"
 )
 
-func Compare(tokenMin int, paths ...string) {
-	pathMatrix := strings.UniqueMatrix(paths...)
+func Compare(cfg *Config) {
+	pathMatrix := strings.UniqueMatrix(cfg.Paths...)
 
 	var wg sync.WaitGroup
 	wg.Add(len(pathMatrix))
@@ -17,7 +17,7 @@ func Compare(tokenMin int, paths ...string) {
 	for _, matrix := range pathMatrix {
 		m := matrix
 		go func(wg *sync.WaitGroup) {
-			clones, err := parse(m[0], m[1], tokenMin)
+			clones, err := parse(m[0], m[1], cfg.TokenMin)
 			if err != nil {
 				fmt.Println(err)
 			}

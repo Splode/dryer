@@ -28,7 +28,8 @@ Dryer identifies duplicate code between files, allowing you to stay dry.
 		Run: func(cmd *cobra.Command, args []string) {
 			// src, pat := args[0], args[1]
 			paths := []string{"mural-section.bak", "story.bak", "mural.bak"}
-			dryer.Compare(tokenMin, paths...)
+			cfg := &dryer.Config{TokenMin: tokenMin, Paths: paths}
+			dryer.Compare(cfg)
 		},
 	}
 
