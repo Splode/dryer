@@ -29,7 +29,7 @@ func Compare(tokenMin int, paths ...string) {
 
 	for _, r := range res {
 		if len(r) > 1 {
-			Print(r)
+			print(r)
 		}
 	}
 }
@@ -39,15 +39,15 @@ func parse(s, p string, min int) ([][]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	srcTokens := Tokenize(srcFile.src, srcFile.absolutePath)
+	srcTokens := tokenize(srcFile.src, srcFile.absolutePath)
 
 	patFile, err := open(p)
 	if err != nil {
 		return nil, err
 	}
-	patTokens := Tokenize(patFile.src, patFile.absolutePath)
+	patTokens := tokenize(patFile.src, patFile.absolutePath)
 
-	res := Search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), min)
+	res := search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), min)
 
 	keys := sortedKeys(res)
 	cloneData := make([][]string, 0)
@@ -60,7 +60,7 @@ func parse(s, p string, min int) ([][]string, error) {
 	return cloneData, nil
 }
 
-func cloneTableData(clones [][]Token) [][]string {
+func cloneTableData(clones [][]token) [][]string {
 	td := make([][]string, len(clones))
 	srcB := clones[0][0]
 	srcE := clones[0][1]
@@ -74,19 +74,19 @@ func cloneTableData(clones [][]Token) [][]string {
 	return td
 }
 
-func getTokenClones(strs [][]Stringer) [][]Token {
-	srcBeg := strs[0][0].(Token)
-	srcEnd := strs[0][len(strs[0])-1].(Token)
+func getTokenClones(strs [][]stringer) [][]token {
+	srcBeg := strs[0][0].(token)
+	srcEnd := strs[0][len(strs[0])-1].(token)
 
-	patBeg := strs[1][0].(Token)
-	patEnd := strs[1][len(strs[0])-1].(Token)
+	patBeg := strs[1][0].(token)
+	patEnd := strs[1][len(strs[0])-1].(token)
 
-	clones := make([][]Token, 0)
-	clones = append(clones, []Token{srcBeg, srcEnd}, []Token{patBeg, patEnd})
+	clones := make([][]token, 0)
+	clones = append(clones, []token{srcBeg, srcEnd}, []token{patBeg, patEnd})
 	return clones
 }
 
-func sortedKeys(m map[int][][]Stringer) []int {
+func sortedKeys(m map[int][][]stringer) []int {
 	keys := make([]int, len(m))
 	i := 0
 	for k := range m {

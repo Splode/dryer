@@ -6,7 +6,7 @@ import (
 	"unicode"
 )
 
-func Tokenize(src io.Reader, name string) []Token {
+func tokenize(src io.Reader, name string) []token {
 	var s scanner.Scanner
 	s.Init(src)
 	s.Filename = name
@@ -15,11 +15,11 @@ func Tokenize(src io.Reader, name string) []Token {
 		return ch == '\'' || unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0 || ch == '.' || ch == '='
 	}
 
-	tokens := make([]Token, 0)
+	tokens := make([]token, 0)
 	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
 		str := s.TokenText()
-		pos := Position{Filename: s.Filename, Offset: s.Offset, Line: s.Line, Column: s.Column}
-		tokens = append(tokens, Token{tokenString: str, Position: pos})
+		pos := position{Filename: s.Filename, Offset: s.Offset, Line: s.Line, Column: s.Column}
+		tokens = append(tokens, token{tokenString: str, position: pos})
 	}
 	return tokens
 }

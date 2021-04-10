@@ -6,7 +6,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func Print(data [][]string) {
+func print(data [][]string) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoFormatHeaders(false)
 	table.SetBorder(false)

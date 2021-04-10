@@ -2,26 +2,26 @@ package dryer
 
 import "sort"
 
-type Stringer interface {
-	String() string
+type stringer interface {
+	string() string
 }
 
-func Search(src, patterns []Stringer, min int) map[int][][]Stringer {
+func search(src, patterns []stringer, min int) map[int][][]stringer {
 	i := indices(src, patterns, min)
-	matches := make(map[int][][]Stringer, len(i))
+	matches := make(map[int][][]stringer, len(i))
 
 	var count int
 	keys := sortedIntMap(i)
 	for _, k := range keys {
 		v := i[k]
-		var s []Stringer
+		var s []stringer
 		if v[1][0]+1 >= len(src) {
 			s = src[v[0][0]:]
 		} else {
 			s = src[v[0][0] : v[1][0]+1]
 		}
 
-		var p []Stringer
+		var p []stringer
 		if v[1][1]+1 >= len(patterns) {
 			p = patterns[v[0][1]:]
 		} else {
@@ -34,7 +34,7 @@ func Search(src, patterns []Stringer, min int) map[int][][]Stringer {
 	return matches
 }
 
-func indices(src, patterns []Stringer, min int) map[int][][]int {
+func indices(src, patterns []stringer, min int) map[int][][]int {
 	m, n := len(src), len(patterns)
 	matches := make(map[int][][]int)
 
@@ -51,7 +51,7 @@ func indices(src, patterns []Stringer, min int) map[int][][]int {
 		for ii := 0; ii <= n; ii++ {
 			if i == 0 || ii == 0 {
 				lcs[i][ii] = 0
-			} else if src[i-1].String() == patterns[ii-1].String() {
+			} else if src[i-1].string() == patterns[ii-1].string() {
 				lcs[i][ii] = lcs[i-1][ii-1] + 1
 			} else {
 				lcs[i][ii] = 0
