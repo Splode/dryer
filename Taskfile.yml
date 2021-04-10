@@ -18,3 +18,8 @@ tasks:
       - mkdir {{ .BUILD_DIR }}
     status:
       - test -d {{ .BUILD_DIR }}
+
+  test:
+    desc: Test the project.
+    cmds:
+      - go test ./...
