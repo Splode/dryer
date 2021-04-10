@@ -21,13 +21,32 @@ func Parse(s, p string, min int) error {
 	res := Search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), min)
 
 	keys := sortedKeys(res)
+	cloneData := make([][]string, 0)
 	for _, k := range keys {
 		c := getTokenClones(res[k])
-		fmt.Println()
-		Print(c)
+		d := cloneTableData(c)
+		cloneData = append(cloneData, d...)
+	}
+
+	if len(cloneData) > 1 {
+		Print(cloneData)
 	}
 
 	return nil
+}
+
+func cloneTableData(clones [][]Token) [][]string {
+	td := make([][]string, len(clones))
+	srcB := clones[0][0]
+	srcE := clones[0][1]
+	patB := clones[1][0]
+	patE := clones[1][1]
+	td = append(td,
+		[]string{srcB.Filename, fmt.Sprintf("%d:%d", srcB.Line, srcB.Column), fmt.Sprintf("%d:%d", srcE.Line, srcE.Column)},
+		[]string{patB.Filename, fmt.Sprintf("%d:%d", patB.Line, patB.Column), fmt.Sprintf("%d:%d", patE.Line, patE.Column)},
+		[]string{"\t"},
+	)
+	return td
 }
 
 func getTokenClones(strs [][]Stringer) [][]Token {

@@ -12,6 +12,14 @@ type testCase struct {
 
 var cases = []testCase{
 	{
+		given:    []string{"a"},
+		expected: [][]string{},
+	},
+	{
+		given:    []string{"a", "b"},
+		expected: [][]string{{"a", "b"}},
+	},
+	{
 		given:    []string{"a", "b", "c"},
 		expected: [][]string{{"a", "b"}, {"a", "c"}, {"b", "c"}},
 	},
@@ -42,7 +50,7 @@ func TestUniqueMatrix(t *testing.T) {
 		exp := tc.expected
 
 		if eq := reflect.DeepEqual(rec, exp); !eq {
-			t.Errorf("expected: %v, received: %v", rec, exp)
+			t.Errorf("expected: %v, received: %v", exp, rec)
 		}
 	}
 }
