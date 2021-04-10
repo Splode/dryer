@@ -11,7 +11,7 @@ func print(data [][]string) {
 	table.SetAutoFormatHeaders(false)
 	table.SetBorder(false)
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetHeader([]string{"Filepath", "Start", "End"})
+	table.SetHeader([]string{"Filepath", "Start", "End", "Percentage"})
 	table.AppendBulk(data)
 	table.Render()
 }

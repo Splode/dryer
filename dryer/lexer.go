@@ -18,7 +18,7 @@ func tokenize(src io.Reader, name string) []token {
 	tokens := make([]token, 0)
 	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
 		str := s.TokenText()
-		pos := position{Filename: s.Filename, Offset: s.Offset, Line: s.Line, Column: s.Column}
+		pos := position{filename: s.Filename, offset: s.Offset, line: s.Line, column: s.Column}
 		tokens = append(tokens, token{tokenString: str, position: pos})
 	}
 	return tokens

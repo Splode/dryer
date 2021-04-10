@@ -8,33 +8,75 @@ import (
 	"github.com/splode/dryer/pkg/strings"
 )
 
-func Compare(cfg *Config) {
+func Compare(cfg *Config) (e error) {
 	pathMatrix := strings.UniqueMatrix(cfg.Paths...)
 
 	var wg sync.WaitGroup
 	wg.Add(len(pathMatrix))
-	res := make([][][]string, 0)
+	comparisons := make([]*comparison, 0)
 	for _, matrix := range pathMatrix {
 		m := matrix
 		go func(wg *sync.WaitGroup) {
-			clones, err := parse(m[0], m[1], cfg.TokenMin)
+			comp, err := parse(m[0], m[1], cfg.TokenMin)
 			if err != nil {
-				fmt.Println(err)
+				e = err
 			}
-			res = append(res, clones)
+			comparisons = append(comparisons, comp)
 			wg.Done()
 		}(&wg)
 	}
 	wg.Wait()
 
-	for _, r := range res {
-		if len(r) > 1 {
-			print(r)
+	for _, c := range comparisons {
+		if c.count() > 0 {
+			print(c.tableData)
+			// fmt.Printf("Total clones: %d of %d and %d\n", c.count(), c.sources[0].count(), c.sources[1].count())
 		}
 	}
+
+	return e
 }
 
-func parse(s, p string, min int) ([][]string, error) {
+// comparison represents the results of a search between 2 sources.
+type comparison struct {
+	sources   []source             // sources used in the comparison
+	clones    []clone              // clones represent a collection of matching tokens in a comparison.
+	tableData [][]string           // tableData are a collection of clone data serialized for reporting.
+	result    map[int][][]stringer // result is the collection of matched tokens
+}
+
+// count returns the total number of clones in the comparison.
+func (c *comparison) count() int {
+	return len(c.result)
+}
+
+type source struct {
+	path         string
+	absolutePath string
+	tokens       []token
+}
+
+func (s *source) count() int {
+	return len(s.tokens)
+}
+
+type clone struct {
+	tokens    [][]token
+	fractions []fraction
+}
+
+type fraction struct {
+	numerator int
+	divisor   int
+}
+
+func (f *fraction) string() string {
+	return fmt.Sprintf("%.2f%%", (float32(f.numerator)/float32(f.divisor))*100)
+}
+
+// parse parses the results of a search for matching tokens between 2 sources, returning a comparison representing the
+// results.
+func parse(s, p string, min int) (*comparison, error) {
 	srcFile, err := open(s)
 	if err != nil {
 		return nil, err
@@ -47,28 +89,43 @@ func parse(s, p string, min int) ([][]string, error) {
 	}
 	patTokens := tokenize(patFile.src, patFile.absolutePath)
 
-	res := search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), min)
-
-	keys := sortedKeys(res)
-	cloneData := make([][]string, 0)
-	for _, k := range keys {
-		c := getTokenClones(res[k])
-		d := cloneTableData(c)
-		cloneData = append(cloneData, d...)
+	sources := []source{
+		{path: srcFile.path, absolutePath: srcFile.absolutePath, tokens: srcTokens},
+		{path: patFile.path, absolutePath: patFile.absolutePath, tokens: patTokens},
 	}
 
-	return cloneData, nil
+	result := search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), min)
+
+	keys := sortedKeys(result)
+	clones := make([]clone, 0)
+	tableData := make([][]string, 0)
+	for _, k := range keys {
+		t := getTokenClones(result[k])
+		clone := clone{
+			tokens: t,
+			fractions: []fraction{
+				{numerator: len(result[k][0]), divisor: sources[0].count()},
+				{numerator: len(result[k][1]), divisor: sources[1].count()},
+			},
+		}
+		clones = append(clones, clone)
+
+		d := cloneTableData(clone)
+		tableData = append(tableData, d...)
+	}
+
+	return &comparison{sources: sources, clones: clones, tableData: tableData, result: result}, nil
 }
 
-func cloneTableData(clones [][]token) [][]string {
-	td := make([][]string, len(clones))
-	srcB := clones[0][0]
-	srcE := clones[0][1]
-	patB := clones[1][0]
-	patE := clones[1][1]
+func cloneTableData(c clone) [][]string {
+	td := make([][]string, 0)
+	srcB := c.tokens[0][0]
+	srcE := c.tokens[0][1]
+	patB := c.tokens[1][0]
+	patE := c.tokens[1][1]
 	td = append(td,
-		[]string{srcB.Filename, fmt.Sprintf("%d:%d", srcB.Line, srcB.Column), fmt.Sprintf("%d:%d", srcE.Line, srcE.Column)},
-		[]string{patB.Filename, fmt.Sprintf("%d:%d", patB.Line, patB.Column), fmt.Sprintf("%d:%d", patE.Line, patE.Column)},
+		[]string{srcB.filename, srcB.lineColumn(), srcE.lineColumn(), c.fractions[0].string()},
+		[]string{patB.filename, patB.lineColumn(), patE.lineColumn(), c.fractions[1].string()},
 		[]string{"\t"},
 	)
 	return td

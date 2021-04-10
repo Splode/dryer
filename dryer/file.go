@@ -7,9 +7,9 @@ import (
 )
 
 type file struct {
-	src          io.Reader
-	path         string
-	absolutePath string
+	src          io.Reader // src represents the contents of the file.
+	path         string    // path is original path used to access the file.
+	absolutePath string    // absolutePath is the absolute path on the system to the file.
 }
 
 func open(path string) (*file, error) {
