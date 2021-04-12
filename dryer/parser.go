@@ -17,7 +17,7 @@ func Compare(cfg *Config) (e error) {
 	for _, matrix := range pathMatrix {
 		m := matrix
 		go func(wg *sync.WaitGroup) {
-			comp, err := parse(m[0], m[1], cfg.TokenMin)
+			comp, err := parse(m[0], m[1], cfg)
 			if err != nil {
 				e = err
 			}
@@ -76,25 +76,33 @@ func (f *fraction) string() string {
 
 // parse parses the results of a search for matching tokens between 2 sources, returning a comparison representing the
 // results.
-func parse(s, p string, min int) (*comparison, error) {
+func parse(s, p string, cfg *Config) (*comparison, error) {
 	srcFile, err := open(s)
 	if err != nil {
 		return nil, err
 	}
-	srcTokens := tokenize(srcFile.src, srcFile.absolutePath)
+	sp := srcFile.path
+	if cfg.Abs {
+		sp = srcFile.absolutePath
+	}
+	srcTokens := tokenize(srcFile.src, sp)
 
 	patFile, err := open(p)
 	if err != nil {
 		return nil, err
 	}
-	patTokens := tokenize(patFile.src, patFile.absolutePath)
+	pp := patFile.path
+	if cfg.Abs {
+		pp = patFile.absolutePath
+	}
+	patTokens := tokenize(patFile.src, pp)
 
 	sources := []source{
 		{path: srcFile.path, absolutePath: srcFile.absolutePath, tokens: srcTokens},
 		{path: patFile.path, absolutePath: patFile.absolutePath, tokens: patTokens},
 	}
 
-	result := search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), min)
+	result := search(tokenSliceToStringer(srcTokens), tokenSliceToStringer(patTokens), cfg.TokenMin)
 
 	keys := sortedKeys(result)
 	clones := make([]clone, 0)
