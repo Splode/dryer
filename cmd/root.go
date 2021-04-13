@@ -72,7 +72,7 @@ Usage:
 Examples:
   dryer <fileOne> <fileTwo>
   dryer --token 30 <fileOne> <fileTwo> <fileThree>
-  dryer --pattern "*.js" --dir "./src"
+  dryer --pattern *.js --dir ./src
 
 Flags:
   -a, --abs              Display a file's absolute path.

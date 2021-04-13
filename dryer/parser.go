@@ -9,6 +9,11 @@ import (
 )
 
 func Compare(cfg *Config) (e error) {
+	if cfg.Pattern != "" {
+		if err := matchPattern(cfg); err != nil {
+			return err
+		}
+	}
 	pathMatrix := strings.UniqueMatrix(cfg.Paths...)
 
 	var wg sync.WaitGroup
@@ -27,6 +32,7 @@ func Compare(cfg *Config) (e error) {
 	}
 	wg.Wait()
 
+	fmt.Println()
 	for _, c := range comparisons {
 		if c.count() > 0 {
 			print(c.tableData)

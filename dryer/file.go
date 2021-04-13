@@ -29,3 +29,13 @@ func open(path string) (*file, error) {
 		absolutePath: abs,
 	}, nil
 }
+
+func matchPattern(cfg *Config) error {
+	g := filepath.Join(cfg.Dir, cfg.Pattern)
+	m, err := filepath.Glob(g)
+	if err != nil {
+		return err
+	}
+	cfg.Paths = append(cfg.Paths, m...)
+	return nil
+}
