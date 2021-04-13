@@ -13,7 +13,8 @@ func rootCmd() *cobra.Command {
 	var dir string
 	var pattern string
 	var tokenMin int
-	var abs bool
+	var absolute bool
+	var recurse bool
 	var verbose bool
 
 	var rootCmd = &cobra.Command{
@@ -32,7 +33,10 @@ Dryer identifies duplicate code between files, allowing you to stay dry.
 `,
 		Run: func(cmd *cobra.Command, args []string) {
 			paths := args
-			cfg := &dryer.Config{Paths: paths, Dir: dir, Pattern: pattern, TokenMin: tokenMin, Abs: abs, Verbose: verbose}
+			cfg := &dryer.Config{
+				Paths: paths, Dir: dir, Pattern: pattern, TokenMin: tokenMin,
+				Absolute: absolute, Recurse: recurse, Verbose: verbose,
+			}
 			if err := dryer.Compare(cfg); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
@@ -51,7 +55,8 @@ Dryer identifies duplicate code between files, allowing you to stay dry.
 	rootCmd.Flags().StringVarP(&dir, "dir", "d", ".", "Directory to look for files.")
 	rootCmd.Flags().StringVarP(&pattern, "pattern", "p", "", "A glob-like pattern to match files.")
 	rootCmd.Flags().IntVarP(&tokenMin, "token", "t", 25, "The minimum number of tokens considered for a clone.")
-	rootCmd.Flags().BoolVarP(&abs, "abs", "a", false, "Display a file's absolute path.")
+	rootCmd.Flags().BoolVarP(&absolute, "absolute", "a", false, "Display a file's absolute path.")
+	rootCmd.Flags().BoolVarP(&recurse, "recurse", "r", false, "Recursively match files when given a pattern.")
 	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Display verbose output.")
 
 	return rootCmd
@@ -75,7 +80,8 @@ Examples:
   dryer --pattern *.js --dir ./src
 
 Flags:
-  -a, --abs              Display a file's absolute path.
+  -a, --absolute        Display a file's absolute path.
+  -r, --recurse          Recursively match files when given a pattern.
   -d, --dir string       Directory to look for files. (default ".")
   -h, --help             Display help for dryer.
   -p, --pattern string   A glob-like pattern to match files.

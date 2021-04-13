@@ -10,8 +10,12 @@ import (
 
 func Compare(cfg *Config) (e error) {
 	if cfg.Pattern != "" {
-		if err := matchPattern(cfg); err != nil {
-			return err
+		if cfg.Recurse {
+			walkPattern(cfg)
+		} else {
+			if err := matchPattern(cfg.Dir, cfg); err != nil {
+				return err
+			}
 		}
 	}
 	pathMatrix := strings.UniqueMatrix(cfg.Paths...)
@@ -88,7 +92,7 @@ func parse(s, p string, cfg *Config) (*comparison, error) {
 		return nil, err
 	}
 	sp := srcFile.path
-	if cfg.Abs {
+	if cfg.Absolute {
 		sp = srcFile.absolutePath
 	}
 	srcTokens := tokenize(srcFile.src, sp)
@@ -98,7 +102,7 @@ func parse(s, p string, cfg *Config) (*comparison, error) {
 		return nil, err
 	}
 	pp := patFile.path
-	if cfg.Abs {
+	if cfg.Absolute {
 		pp = patFile.absolutePath
 	}
 	patTokens := tokenize(patFile.src, pp)
@@ -131,6 +135,7 @@ func parse(s, p string, cfg *Config) (*comparison, error) {
 	return &comparison{sources: sources, clones: clones, tableData: tableData, result: result}, nil
 }
 
+// TODO: this has more to do with printing/reporting; should be in a different file
 func cloneTableData(c clone) [][]string {
 	td := make([][]string, 0)
 	srcB := c.tokens[0][0]

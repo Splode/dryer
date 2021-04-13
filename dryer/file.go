@@ -30,12 +30,25 @@ func open(path string) (*file, error) {
 	}, nil
 }
 
-func matchPattern(cfg *Config) error {
-	g := filepath.Join(cfg.Dir, cfg.Pattern)
+func matchPattern(dir string, cfg *Config) error {
+	g := filepath.Join(dir, cfg.Pattern)
 	m, err := filepath.Glob(g)
 	if err != nil {
 		return err
 	}
 	cfg.Paths = append(cfg.Paths, m...)
 	return nil
+}
+
+func walkPattern(cfg *Config) error {
+	d := cfg.Dir
+	return filepath.Walk(d, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return matchPattern(path, cfg)
+		}
+		return nil
+	})
 }

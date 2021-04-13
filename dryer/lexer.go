@@ -10,6 +10,7 @@ func tokenize(src io.Reader, name string) []token {
 	var s scanner.Scanner
 	s.Init(src)
 	s.Filename = name
+	s.Mode ^= scanner.ScanFloats // resolve errors with "px" values in CSS
 
 	s.IsIdentRune = func(ch rune, i int) bool {
 		return ch == '\'' || unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0 || ch == '.' || ch == '='
